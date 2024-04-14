@@ -14,7 +14,7 @@ export default function Home() {
             <AvatarImage src={preview} />
             <AvatarFallback>BU</AvatarFallback>
           </Avatar> */}
-          <Image src={preview? preview : ""} alt="icon" width={500} height={200} className="rounded-full"/>
+          <img src={preview? preview: "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI="} className=" rounded-full"/>
       <Label htmlFor="image"></Label>
       <Input
         id="image"
