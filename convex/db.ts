@@ -16,3 +16,20 @@ export const saveImage = mutation({
     return input;
   },
 });
+
+export const getResponse = query({
+  args: { resId: v.id("db") },
+  handler: (ctx, { resId }) => {
+    if (!resId) return null;
+    return ctx.db.get(resId);
+  },
+});
+
+export const updateResponse = internalMutation({
+  args: { id: v.id("db"), result: v.string() },
+  handler: async (ctx, { id, result }) => {
+    await ctx.db.patch(id, {
+      result,
+    });
+  },
+});

@@ -19,21 +19,21 @@ export const generate = internalAction({
     });
 
     const output = (await replicate.run(
-        "yorickvp/llava-13b:a0fdc44e4f2e1f20f2bb4e27846899953ac8e66c5886c5878fa1d6b73ce009e5",
+      "yorickvp/llava-13b:a0fdc44e4f2e1f20f2bb4e27846899953ac8e66c5886c5878fa1d6b73ce009e5",
       {
         input: {
-            image: "https://replicate.delivery/pbxt/KRULC43USWlEx4ZNkXltJqvYaHpEx2uJ4IyUQPRPwYb8SzPf/view.jpg",
-            top_p: 1,
-            prompt: "Are you allowed to swim here?",
-            max_tokens: 1024,
-            temperature: 0.2
-          },
+          image: image,
+          top_p: 1,
+          prompt: prompt,
+          max_tokens: 1024,
+          temperature: 0.2,
+        },
       }
     )) as [string, string];
 
-    // await ctx.runMutation(internal.db.updateSketchResult, {
-    //   sketchId,
-    //   result: output[1],
-    // });
+    await ctx.runMutation(internal.db.updateResponse, {
+      id,
+      result: output[1],
+    });
   },
 });
