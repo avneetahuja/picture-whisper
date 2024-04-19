@@ -1,36 +1,57 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { FormEvent, useRef, useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
 import Image from "next/image";
-import { Avatar,AvatarImage,AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const [preview, setPreview] = useState("");
+  const generateUploadUrl = useMutation(api.db.generateUploadUrl);
+  const saveImage = useMutation(api.db.saveImage);
+  const resQuery = useQuery(api.db.getResponse);
+  // const [preview, setPreview] = useState("");
+  const imageRef = useRef<HTMLInputElement>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [prompt, setPrompt] = useState("");
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+
+    const url = await generateUploadUrl();
+
+    const result = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": image!.type },
+      body: image,
+    });
+
+    const { storageId } = await result.json();
+
+    await saveImage({ prompt: prompt, image: storageId });
+
+    setImage(null);
+    imageRef.current!.value = "";
+  }
   return (
     <div className="grid w-full max-w-sm items-center gap-1.5">
-      {/* <Avatar className="w-24 h-24">
-            <AvatarImage src={preview} />
-            <AvatarFallback>BU</AvatarFallback>
-          </Avatar> */}
-          <img src={preview? preview: "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI="} className=" rounded-full"/>
-      <Label htmlFor="image"></Label>
-      <Input
-        id="image"
-        type="file"
-        onChange={(event) => {
-          const dataTransfer = new DataTransfer();
-          Array.from(event.target.files!).forEach((image) =>
-            dataTransfer.items.add(image)
-          );
-          const files = dataTransfer.files;
-          const displayUrl = URL.createObjectURL(event.target.files![0]);
-          setPreview(displayUrl);
-          // onChange(files);
-        }}
-      ></Input>
-      
+      <form onSubmit={handleSubmit}>
+        <input
+          type="file"
+          accept="image/*"
+          ref={imageRef}
+          onChange={(e) => setImage(e.target.files![0])}
+          disabled={image !== null}
+        />
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+        ></input>
+        <input type="submit" value={"Send"}></input>
+      </form>
     </div>
   );
 }
